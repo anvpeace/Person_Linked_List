@@ -1,0 +1,516 @@
+Project 3: McKenna Cruz Peace
+
+#### Part 1: Abstract Base Class – Person
+
+[Explaination]:
+    The Person class is an abstract base class that serves as the foundation for both Student and Faculty classes. It holds shared attributes like id and name and enforces the implementation of display() and updateDetails() functions in derived classes. It also includes a virtual getGPA() method that returns 0.0 by default, which is overridden by the Student class.
+
+
+[Code]:
+    class Person {
+    public:
+        Person();
+        Person(int id, string n);
+        virtual ~Person();
+
+        void setName(string n);
+        string getName() const;
+        int getID() const;
+
+        virtual void updateDetails() = 0;
+        virtual void display() = 0;
+        virtual double getGPA() const { return 0.0; }
+
+    protected:
+        string name;
+        int id;
+    };
+
+    Person.cpp:
+
+    #include "Person.h"
+
+    Person::Person():id(0), name(""){}
+    Person::Person(int id, string n): id(id), name(n){}
+    Person::~Person(){} 
+
+    void Person:: setName(string n){name = n;};
+    string Person::getName() const{return name;}
+
+    int Person::getID() const{return id;}
+
+
+#### Part 2: Student Class (Inherits from Person)
+
+[Explaination]:
+    The Student class inherits from Person and adds attributes for major and GPA. It overrides the display() and updateDetails() methods and provides getMajor, setMajor, getGPA, and setGPA functions. It includes an overloaded operator<< to format the console output.
+
+
+[Code:]
+    class Student : public Person {
+    private:
+        string major;
+        double gpa;
+    public:
+        Student();
+        Student(int id, string name, string major, double gpa);
+
+        string getMajor() const;
+        void setMajor(string major);
+        double getGPA() const override;
+        void setGPA(double gpa);
+
+        void display() override;
+        void updateDetails() override;
+
+        friend ostream& operator<<(ostream& out, const Student& s);
+    };
+
+    Student.cpp:
+
+    #include "Student.h"
+    #include<iostream>
+    using namespace std;
+
+    Student::Student():Person(), major(""), gpa(0.0){};
+    Student::Student(int id, string name, string major, double gpa):Person(id, name), major(major), gpa(gpa){};
+
+    string Student::getMajor() const{return major;}
+    void Student::setMajor(string major){this->major = major;}
+
+    void Student::setGPA(double gpa){this->gpa = gpa;} //points to gpa of student class and allows the value to be modified
+    double Student::getGPA() const{return gpa;} 
+
+    void Student::display() {
+        cout << *this << endl;
+    }
+
+    ostream& operator<<(ostream& out, const Student& s) {
+        out << "Student - ID: " << s.id
+            << ", Name: " << s.name
+            << ", Major: " << s.major
+            << ", GPA: " << s.gpa;
+        return out;
+    }
+
+    void Student::updateDetails() {
+        string major;
+        double gpa;
+        cout << "Enter major: ";
+        getline(cin, major);
+        cout << "Enter GPA: ";
+        cin >> gpa;
+        setMajor(major);
+        setGPA(gpa);
+    }
+
+#### Part 3: Faculty Class (Inherits from Person)
+
+[Explaination]:
+    The Faculty class also inherits from Person and includes additional attributes: department, title, and salary. Like the Student class, it overrides display() and updateDetails() and includes an overloaded operator<< for easy printing.
+
+
+[Code:]
+    class Faculty : public Person {
+    private:
+        string department;
+        string title;
+        int salary;
+    public:
+        Faculty();
+        Faculty(string n, int id, string d, string t, int s);
+
+        void setDepartment(string department);
+        string getDepartment() const;
+        void setTitle(string title);
+        string getTitle() const;
+        void setSalary(int salary);
+        int getSalary() const;
+
+        void display() override;
+        void updateDetails() override;
+
+        friend ostream& operator<<(ostream& out, const Faculty& f);
+    };
+
+Faculty.cpp:
+
+    #include"Faculty.h"
+    #include<iostream>
+    using namespace std;
+
+    Faculty::Faculty():Person(), department(""), title(""), salary(0){};
+    Faculty::Faculty(int id, string n, string d, string t, int s):Person(id, n), department(d), title(t), salary(s){};
+
+    void Faculty::setDepartment(string department){this->department = department;}
+    void Faculty::setTitle(string title){this->title = title;}
+    void Faculty::setSalary(int salary){this->salary = salary;}
+
+    string Faculty::getDepartment() const{return department;}
+    string Faculty::getTitle() const{return title;}
+    int Faculty::getSalary() const{return salary;}
+
+    void Faculty::display() {
+        // reuses operatot<<
+        cout << *this << endl;
+    }
+
+    ostream& operator<<(ostream& out, const Faculty& f) {
+        out << "Faculty - ID: " << f.id
+            << ", Name: " << f.name
+            << ", Dept: " << f.department
+            << ", Title: " << f.title
+            << ", Salary: $" << f.salary;
+        return out;
+    }
+
+
+    void Faculty::updateDetails(){
+        string department, title;
+        int salary;
+        cout << "Enter department: ";
+        getline(cin, department);
+        cout << "Enter title: ";
+        getline(cin, title);
+        cout << "Enter salary: ";
+        cin >> salary;
+        setDepartment(department);
+        setTitle(title);
+        setSalary(salary);
+    };
+
+#### Part 4: Template Class – ListNode<T>
+
+[Explaination]:
+    ListNode<T> is a simple template class for creating singly linked list nodes. Each node contains a data field of type T and a pointer to the next node.
+
+[Code:]
+    template <typename T>
+    class ListNode {
+    public:
+        T data;
+        ListNode<T>* next;
+
+        ListNode(T data) : data(data), next(nullptr) {}
+    };
+
+
+#### Part 5: Template Class – LinkedList<T> (Specialized for T = Person*)
+
+[Explaination]:
+    The LinkedList class manages a dynamic list of Person* objects. It includes methods for inserting, deleting, updating, displaying, and sorting entries. It also handles reading input from the console, text files, and CSV files.
+
+
+[Code:]
+    class LinkedList {
+    private:
+        ListNode<Person*>* head;
+    public:
+        LinkedList();
+        ~LinkedList();
+
+        void insert(Person* data);
+        void display();
+        Person* search(int id);
+        Person* search(string firstName, string lastName);
+        void update(int id);
+        void remove(int id);
+
+        void addStudentFromConsole();
+        void addStudentsFromTxtFile(const string& filename);
+        void addStudentsFromCSVFile(const string& filename);
+
+        void addFacultyFromConsole();
+        void addFacultyFromTxtFile(const string& filename);
+        void addFacultyFromCSVFile(const string& filename);
+
+        void sortByID();
+        void sortByName();
+        void sortByGPA();
+    };
+
+
+#### Part 6: Input Options – Add Students
+
+[Explaination]:
+    Students can be added manually via console input, or imported from text and CSV files. The input data is used to instantiate Student objects, which are then added to the linked list.
+
+
+[Code:]
+    void LinkedList::addStudentFromConsole();
+    void LinkedList::addStudentsFromTxtFile(const string& filename);
+    void LinkedList::addStudentsFromCSVFile(const string& filename);
+
+LinkedList.cpp:
+
+    void LinkedList::addStudentFromConsole() {
+        int id;
+        string name, major;
+        double gpa;
+
+        cout << "Enter student ID: ";
+        cin >> id;
+        cin.ignore();
+        cout << "Enter student name: ";
+        getline(cin, name);
+        cout << "Enter major: ";
+        getline(cin, major);
+        cout << "Enter GPA: ";
+        cin >> gpa;
+
+        Student* student = new Student(id, name, major, gpa);
+        insert(student);
+    }
+
+
+    void LinkedList::addStudentsFromTxtFile(const string& filename) {
+        ifstream infile(filename);
+        if (!infile.is_open()) {
+            cerr << "Failed to open file: " << filename << endl;
+            return;
+        }
+        
+        string idStr, name, major, gpaStr;
+
+        while (getline(infile, idStr) &&
+            getline(infile, name) &&
+            getline(infile, major) &&
+            getline(infile, gpaStr)) {
+
+            int id = 0;
+            double gpa = 0.0;
+
+            {
+                stringstream ss(idStr);
+                ss >> id;
+            }
+            {
+                stringstream ss(gpaStr);
+                ss >> gpa;
+            }
+
+            Student* student = new Student(id, name, major, gpa);
+            insert(student);  
+        }
+
+        infile.close();
+    }
+
+    void LinkedList::addStudentsFromCSVFile(const string& filename) {
+        ifstream infile(filename);
+        if (!infile.is_open()) {
+            cerr << "Failed to open file: " << filename << endl;
+            return;
+        }
+
+        string line;
+        while (getline(infile, line)) {
+
+            stringstream ss(line);
+            string idStr, name, major, gpaStr;
+
+            getline(ss, idStr, ',');
+            getline(ss, name, ',');
+            getline(ss, major, ',');
+            getline(ss, gpaStr, ',');
+
+            int id = 0;
+            double gpa = 0.0;
+
+            {
+                stringstream conv(idStr);
+                conv>> id;
+            }
+            {
+                stringstream conv(gpaStr);
+                conv >> gpa;          
+            }
+
+            Student* student = new Student(id, name, major, gpa);
+            insert(student);
+        }
+        infile.close();
+    }
+
+
+#### Part 7: Input Options – Add Faculty
+
+[Explaination]:
+    Faculty data can also be added via the console, or read from text or CSV files. Faculty objects are created and inserted into the linked list
+
+[Code:]
+    void LinkedList::addFacultyFromConsole();
+    void LinkedList::addFacultyFromTxtFile(const string& filename);
+    void LinkedList::addFacultyFromCSVFile(const string& filename);
+
+LinkedList.cpp:
+
+    void LinkedList :: addFacultyFromConsole(){
+        int id;
+        string name, department, title;
+        int salary;
+
+        cout << "Enter Faculty ID: ";
+        cin >> id;
+        cin.ignore();
+        cout << "Enter Faculty name: ";
+        getline(cin, name);
+        cout << "Enter Department: ";
+        getline(cin, department);
+        cout << "Enter Title: ";
+        getline(cin, title);
+        cout << "Enter Salary: ";
+        cin>> salary;      
+
+        Faculty* faculty = new Faculty(id, name, department, title, salary);
+        insert(faculty);
+    }
+
+    void LinkedList::addFacultyFromTxtFile(const string& filename) {
+        ifstream infile(filename);
+        if (!infile.is_open()) {
+            cerr << "Failed to open file: " << filename << endl;
+            return;
+        }
+            // int idStr;
+        string idStr, name, department, title, salaryStr;
+
+        while (getline(infile, idStr) &&
+            getline(infile, name) &&
+            getline(infile, department) &&
+            getline(infile, title) &&
+            getline(infile, salaryStr)) {
+
+            int id = 0;
+            double salary = 0.0;
+
+            { stringstream ss(idStr); 
+                ss >> id; 
+            }
+            { stringstream ss(salaryStr); 
+                ss >> salary; 
+            }
+
+            Faculty* faculty = new Faculty(id, name, department, title, salary);
+            insert(faculty);
+        }
+
+        infile.close();
+    }
+
+
+    void LinkedList::addFacultyFromCSVFile(const string& filename) {
+        ifstream infile(filename);
+        if (!infile.is_open()) {
+            cerr << "Failed to open file: " << filename << endl;
+            return;
+        }
+        string line;
+        while (getline(infile, line)) {
+            //split CSV lines by commas
+            stringstream ss(line);
+            string idStr, name, department, title, salaryStr;
+
+            getline(ss, idStr, ',');
+            getline(ss, name, ',');
+            getline(ss, department, ',');
+            getline(ss, title, ',');
+            getline(ss, salaryStr, ',');
+
+
+            int id = 0;
+            double salary = 0.0;  
+
+            {
+                stringstream conv(idStr);
+                conv >> id;
+            }
+            {
+                stringstream conv(salaryStr);
+                conv >> salary;
+            }   
+            
+
+            Faculty* faculty = new Faculty(id, name, department, title, salary);
+            insert(faculty);
+        }
+        infile.close();
+    }
+
+
+
+#### Part 8: Sorting Functions
+
+[Explaination]:
+    The system allows sorting the list of people by ID, name, or GPA. sortByID() and sortByName() sort all Person objects. sortByGPA() applies only to students—non-students are treated as GPA 0.0 due to polymorphism.
+
+[Code:]
+    void LinkedList::sortByID();
+    void LinkedList::sortByName();
+    void LinkedList::sortByGPA();
+
+LinkedList.cpp:
+
+    void LinkedList::sortByID() {
+        vector<Person*> people;
+        ListNode<Person*>* current = head;
+
+        while (current != nullptr) {
+            people.push_back(current->data);
+            current = current->next;
+        }
+
+        sort(people.begin(), people.end(), [](Person* a, Person* b) {
+            return a->getID() < b->getID();
+        });
+
+        current = head;
+        for (Person* p : people) {
+            current->data = p;
+            current = current->next;
+        }
+    };
+
+    void LinkedList::sortByName() {
+        vector<Person*> people;
+        ListNode<Person*>* current = head;
+
+        while (current != nullptr) {
+            people.push_back(current->data);
+            current = current->next;
+        }
+
+        sort(people.begin(), people.end(), [](Person* a, Person* b) {
+            return a->getName() < b->getName();
+        });
+
+        current = head;
+        for (Person* p : people) {
+            current->data = p;
+            current = current->next;
+        }
+    };
+
+    void LinkedList::sortByGPA() {
+        vector<Person*> people;
+        ListNode<Person*>* current = head;
+
+        while (current != nullptr) {
+            people.push_back(current->data);
+            current = current->next;
+        }
+
+        sort(people.begin(), people.end(), [](Person* a, Person* b) {
+            double gpaA = a->getGPA();
+            double gpaB = b->getGPA();
+            return gpaA > gpaB;
+        });
+
+        current = head;
+        for (Person* p : people) {
+            current->data = p;
+            current = current->next;
+        }
+    }
+
+
